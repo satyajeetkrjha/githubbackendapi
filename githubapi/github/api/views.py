@@ -9,8 +9,10 @@ from urllib.error import HTTPError
 import json
 from github.api.serializers import UserSerializer
 
-def validInvalidUsers(nonExistingUsers):
+
+def validInvalidUsers(nonExistingUsers,existingUsers):
     invalidUserNames=[]
+    createdUsers=[]
     for username in nonExistingUsers:
         url = f"https://api.github.com/users/{username}"
         res =requests.get(url)
@@ -28,6 +30,41 @@ def validInvalidUsers(nonExistingUsers):
             serializer = UserSerializer(data=transformedData)
             if serializer.is_valid():
                 serializer.save()
+                print(serializer.data['id'])
+                userCreated =dict()
+                userCreated['id'] =serializer.data.get('id')
+                userCreated['username']=username
+                createdUsers.append(userCreated)
+
+    #after creation make api call and save their repos and add all different data
+
+    getRepos(createdUsers,existingUsers)
+
+def getRepos(createdUsers,existingUers):
+
+    print (createdUsers)
+
+    for item in createdUsers:
+        url = "https://api.github.com/users/{}".format(item.get('username')) + "/repos"
+        token = "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"
+        headers = {
+            "authorization": "Bearer{}".format(token)
+        }
+        api_link = requests.get(url, headers=headers)
+        api_data = api_link.json()
+        repos_Data = (api_data)
+        repos = []
+        [repos.append(items['name']) for items in repos_Data]
+        print("repos",repos)
+
+
+
+
+
+
+
+
+
 
 
 def get_nonexistingUers(usersTofetch):
@@ -61,7 +98,7 @@ def getUserInfo(request,*args,**kwargs):
     userNames = get_users_list()
     usersToFetch = get_users_tofetch(request,userNames)
     nonExistingUsers,existingUsers = get_nonexistingUers(usersToFetch)
-    invalidUsers =validInvalidUsers(nonExistingUsers)
+    invalidUsers =validInvalidUsers(nonExistingUsers,existingUsers)
     print(invalidUsers)
     return []
 
