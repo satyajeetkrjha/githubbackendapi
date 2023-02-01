@@ -19,7 +19,7 @@ def validInvalidUsers(nonExistingUsers):
         else:
             resjson = res.json()
             transformedData = dict()
-            transformedData['name'] = resjson.get('name')
+            transformedData['name'] = "User has no Name" if resjson.get('name', "") is None else resjson.get('name', "")
             transformedData['username'] = username
             transformedData['bio'] = "User has no bio" if resjson.get('bio', "") is None else resjson.get('bio', "")
             transformedData['total_followers']= resjson.get('followers')
@@ -28,8 +28,7 @@ def validInvalidUsers(nonExistingUsers):
             serializer = UserSerializer(data=transformedData)
             if serializer.is_valid():
                 serializer.save()
-            print(res.json())
-    return invalidUserNames
+
 
 def get_nonexistingUers(usersTofetch):
     existingUers =[]
