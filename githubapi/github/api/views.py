@@ -4,6 +4,25 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from github.models import GithubUser
+import requests
+from urllib.error import HTTPError
+import json
+
+def validInvalidUsers(nonExistingUsers):
+    invalidUserNames=[]
+    for username in nonExistingUsers:
+        url = f"https://api.github.com/users/{username}"
+        res =requests.get(url)
+        if res.status_code == 404:
+            invalidUserNames.append(username)
+        else:
+            print(res.json())
+    return invalidUserNames
+
+
+
+
+
 
 def get_nonexistingUers(usersTofetch):
     existingUers =[]
@@ -35,9 +54,8 @@ def get_users_tofetch(request,userNames):
 def getUserInfo(request,*args,**kwargs):
     userNames = get_users_list()
     usersToFetch = get_users_tofetch(request,userNames)
-    nonexistingusers,existingusers = get_nonexistingUers(usersToFetch)
-    print(nonexistingusers)
-    print(existingusers)
-
-    pass
+    nonExistingUsers,existingUsers = get_nonexistingUers(usersToFetch)
+    invalidUsers =validInvalidUsers(nonExistingUsers)
+    print(invalidUsers)
+    return []
 
