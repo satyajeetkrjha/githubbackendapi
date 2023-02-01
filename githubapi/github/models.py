@@ -12,7 +12,12 @@ class GithubUser(models.Model):
     def __str__(self):
         return self.name
     
-    
+class Repository(models.Model):
+    owner = models.ForeignKey(GithubUser,
+                               on_delete=models.CASCADE,
+                               related_name="repos")
+    name = models.CharField(max_length=1000)
+
     
     
     
