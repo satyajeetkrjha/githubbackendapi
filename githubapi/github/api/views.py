@@ -7,6 +7,7 @@ from github.models import GithubUser
 import requests
 from urllib.error import HTTPError
 import json
+from github.api.serializers import UserSerializer
 
 def validInvalidUsers(nonExistingUsers):
     invalidUserNames=[]
@@ -16,13 +17,19 @@ def validInvalidUsers(nonExistingUsers):
         if res.status_code == 404:
             invalidUserNames.append(username)
         else:
+            resjson = res.json()
+            transformedData = dict()
+            transformedData['name'] = resjson.get('name')
+            transformedData['username'] = username
+            transformedData['bio'] = "User has no bio" if resjson.get('bio', "") is None else resjson.get('bio', "")
+            transformedData['total_followers']= resjson.get('followers')
+            transformedData['total_publicrepos'] = resjson.get('public_repos')
+            transformedData['location'] = "User has no location" if resjson.get('location', "") is None else resjson.get('location', "")
+            serializer = UserSerializer(data=transformedData)
+            if serializer.is_valid():
+                serializer.save()
             print(res.json())
     return invalidUserNames
-
-
-
-
-
 
 def get_nonexistingUers(usersTofetch):
     existingUers =[]
