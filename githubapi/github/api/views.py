@@ -9,8 +9,9 @@ from urllib.error import HTTPError
 import json
 from github.api.serializers import UserSerializer,RepoSerializer
 
+from django.core import serializers
 
-def validInvalidUsers(nonExistingUsers,existingUsers):
+def validInvalidUsers(nonExistingUsers):
     invalidUserNames=[]
     createdUsers=[]
     for username in nonExistingUsers:
@@ -38,10 +39,10 @@ def validInvalidUsers(nonExistingUsers,existingUsers):
 
     #after creation make api call and save their repos and add all different data
 
-    repos =getRepos(createdUsers,existingUsers)
+    repos =getRepos(createdUsers)
     return repos
 
-def getRepos(createdUsers,existingUsers):
+def getRepos(createdUsers):
 
     print (createdUsers)
     repos_serializers=[]
@@ -79,13 +80,20 @@ def getRepos(createdUsers,existingUsers):
 def get_nonexistingUers(usersTofetch):
     existingUers =[]
     nonexistingusers=[]
+    existingUserRepos =[]
     for item in usersTofetch:
         user = GithubUser.objects.filter(username =item)
         if not user:
             nonexistingusers.append(item)
         else:
+            serializer = UserSerializer(user, many=True)
+            print(serializer)
+            jsonVal = json.dumps(serializer.data)
+            jsonTurned = json.loads(jsonVal)
+
+            existingUserRepos.append(jsonTurned[0]['repos'])
             existingUers.append(item)
-    return nonexistingusers,existingUers
+    return nonexistingusers,existingUserRepos
 
 def get_users_list():
     userNames = []
@@ -106,8 +114,10 @@ def get_users_tofetch(request,userNames):
 def getUserInfo(request,*args,**kwargs):
     userNames = get_users_list()
     usersToFetch = get_users_tofetch(request,userNames)
-    nonExistingUsers,existingUsers = get_nonexistingUers(usersToFetch)
-    repos =validInvalidUsers(nonExistingUsers,existingUsers)
-    return Response({'repos':repos}, status=status.HTTP_201_CREATED)
+    nonExistingUsers,existingUsersRepos = get_nonexistingUers(usersToFetch)
+    newUsersRepos =validInvalidUsers(nonExistingUsers)
+
+    allRepos =newUsersRepos+existingUsersRepos
+    return Response({'repos':allRepos}, status=status.HTTP_201_CREATED)
 
 
