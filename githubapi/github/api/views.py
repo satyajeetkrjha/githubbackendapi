@@ -38,7 +38,8 @@ def validInvalidUsers(nonExistingUsers):
                 createdUsers.append(userCreated)
 
     #after creation make api call and save their repos and add all different data
-
+    if len(nonExistingUsers) == len(invalidUserNames):
+        return None;
     repos =getRepos(createdUsers)
     return repos
 
@@ -116,6 +117,11 @@ def getUserInfo(request,*args,**kwargs):
     usersToFetch = get_users_tofetch(request,userNames)
     nonExistingUsers,existingUsersRepos = get_nonexistingUers(usersToFetch)
     newUsersRepos =validInvalidUsers(nonExistingUsers)
+    if newUsersRepos is None:
+        return Response(
+            {'error': 'All usernames are invalid'},
+            status = status.HTTP_400_BAD_REQUEST
+        )
 
     allRepos =newUsersRepos+existingUsersRepos
     return Response({'repos':allRepos}, status=status.HTTP_201_CREATED)
