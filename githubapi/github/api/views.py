@@ -38,12 +38,13 @@ def validInvalidUsers(nonExistingUsers,existingUsers):
 
     #after creation make api call and save their repos and add all different data
 
-    getRepos(createdUsers,existingUsers)
+    repos =getRepos(createdUsers,existingUsers)
+    return repos
 
-def getRepos(createdUsers,existingUers):
+def getRepos(createdUsers,existingUsers):
 
     print (createdUsers)
-
+    repos_serializers=[]
     for item in createdUsers:
         url = "https://api.github.com/users/{}".format(item.get('username')) + "/repos"
         token = "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"
@@ -66,6 +67,11 @@ def getRepos(createdUsers,existingUers):
             serializer = RepoSerializer(data = repoData)
             if serializer.is_valid():
                 serializer.save()
+                repos_serializers.append(serializer.data)
+    print("repos ",repos_serializers)
+
+
+    return repos_serializers
 
 
 
@@ -101,7 +107,7 @@ def getUserInfo(request,*args,**kwargs):
     userNames = get_users_list()
     usersToFetch = get_users_tofetch(request,userNames)
     nonExistingUsers,existingUsers = get_nonexistingUers(usersToFetch)
-    invalidUsers =validInvalidUsers(nonExistingUsers,existingUsers)
-    print(invalidUsers)
-    return []
+    repos =validInvalidUsers(nonExistingUsers,existingUsers)
+    return Response({'repos':repos}, status=status.HTTP_201_CREATED)
+
 
