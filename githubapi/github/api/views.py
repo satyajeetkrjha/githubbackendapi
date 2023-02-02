@@ -38,7 +38,7 @@ def validInvalidUsers(nonExistingUsers):
                 createdUsers.append(userCreated)
 
     #after creation make api call and save their repos and add all different data
-    if len(nonExistingUsers) == len(invalidUserNames):
+    if len(nonExistingUsers) == len(invalidUserNames) and len(nonExistingUsers) >0 :
         return None;
     repos =getRepos(createdUsers)
     return repos
@@ -91,8 +91,13 @@ def get_nonexistingUers(usersTofetch):
             print(serializer)
             jsonVal = json.dumps(serializer.data)
             jsonTurned = json.loads(jsonVal)
-
-            existingUserRepos.append(jsonTurned[0]['repos'])
+            #changed part here
+            userId = jsonTurned[0]['id']
+            Repos = Repository.objects.filter(githubuser = userId)
+            RepSerializer= RepoSerializer(Repos,many=True)
+            RepDumps = json.dumps(RepSerializer.data)
+            RepJsonTurned = json.loads(RepDumps)
+            existingUserRepos.append(RepJsonTurned)
             existingUers.append(item)
     return nonexistingusers,existingUserRepos
 
@@ -126,4 +131,10 @@ def getUserInfo(request,*args,**kwargs):
     allRepos =newUsersRepos+existingUsersRepos
     return Response({'repos':allRepos}, status=status.HTTP_201_CREATED)
 
+
+@api_view(["GET", "POST"])
+def get_AllExistingUsers(request):
+    users = GithubUser.objects.all()
+    serializer = UserSerializer(users,many=True)
+    return Response(serializer.data)
 

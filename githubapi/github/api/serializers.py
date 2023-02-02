@@ -29,7 +29,7 @@ class RepoSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserSerializer(serializers.ModelSerializer):
-    repos = RepoSerializer(many=True,read_only=True)
+    #repos = RepoSerializer(many=True,read_only=True)
     class Meta:
         model = GithubUser
         fields = '__all__'
