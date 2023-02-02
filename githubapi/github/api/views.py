@@ -3,11 +3,11 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
-from github.models import GithubUser
+from github.models import GithubUser,Repository
 import requests
 from urllib.error import HTTPError
 import json
-from github.api.serializers import UserSerializer
+from github.api.serializers import UserSerializer,RepoSerializer
 
 
 def validInvalidUsers(nonExistingUsers,existingUsers):
@@ -56,13 +56,16 @@ def getRepos(createdUsers,existingUers):
         repos = []
         [repos.append(items['name']) for items in repos_Data]
         print("repos",repos)
-
-
-
-
-
-
-
+        userId = item.get('id')
+        repoData ={}
+        for index,item in enumerate(repos):
+            print(item)
+            print(index)
+            repoData['githubuser'] =userId
+            repoData['name'] =repos[index]
+            serializer = RepoSerializer(data = repoData)
+            if serializer.is_valid():
+                serializer.save()
 
 
 
