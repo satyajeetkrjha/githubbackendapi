@@ -49,7 +49,7 @@ def getRepos(createdUsers):
     repos_serializers=[]
     for item in createdUsers:
         url = "https://api.github.com/users/{}".format(item.get('username')) + "/repos"
-        token = "github_pat_11AFRKJ2Q0"
+        token = "github_pat_"
         headers = {
             "authorization": "Bearer{}".format(token)
         }
