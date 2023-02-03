@@ -72,12 +72,7 @@ def getRepos(createdUsers):
                 repos_serializers.append(serializer.data)
     print("repos ",repos_serializers)
 
-
     return repos_serializers
-
-
-
-
 def get_nonexistingUers(usersTofetch):
     existingUers =[]
     nonexistingusers=[]
@@ -117,7 +112,7 @@ def get_users_tofetch(request,userNames):
     return userToFetch
 
 @api_view(["GET", "POST"])
-def getUserInfo(request,*args,**kwargs):
+def getUsersRepos(request,*args,**kwargs):
     userNames = get_users_list()
     usersToFetch = get_users_tofetch(request,userNames)
     nonExistingUsers,existingUsersRepos = get_nonexistingUers(usersToFetch)
@@ -127,10 +122,10 @@ def getUserInfo(request,*args,**kwargs):
             {'error': 'All usernames are invalid'},
             status = status.HTTP_400_BAD_REQUEST
         )
-
-    allRepos =newUsersRepos+existingUsersRepos
-    return Response({'repos':allRepos}, status=status.HTTP_201_CREATED)
-
+    return Response({
+        'newusers':newUsersRepos,
+        'oldusers':existingUsersRepos
+    }, status=status.HTTP_201_CREATED)
 
 @api_view(["GET", "POST"])
 def get_AllExistingUsers(request):
